@@ -12,17 +12,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-html,
-body,
-#root {
+html, body, #root {
   min-height: 100%;
 }
 
 body {
   margin: 0;
-}
-
-img {
-  display: block;
-  max-width: 100%;
 }

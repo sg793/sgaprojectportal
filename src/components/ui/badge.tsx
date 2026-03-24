@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { cn } from '@/lib/utils';
+import * as React from 'react'
+import { cn } from '@/lib/utils'
 
-export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'outline';
+type BadgeProps = React.HTMLAttributes<HTMLDivElement> & {
+  variant?: 'default' | 'outline'
 }
 
 export function Badge({ className, variant = 'default', ...props }: BadgeProps) {
@@ -10,10 +10,10 @@ export function Badge({ className, variant = 'default', ...props }: BadgeProps) 
     <div
       className={cn(
         'inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold transition-colors',
-        variant === 'outline' ? 'border border-neutral-200 bg-white text-neutral-900' : 'bg-neutral-900 text-white',
-        className
+        variant === 'outline' ? 'border bg-transparent' : 'bg-neutral-900 text-white',
+        className,
       )}
       {...props}
     />
-  );
+  )
 }

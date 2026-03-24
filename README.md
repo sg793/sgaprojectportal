@@ -1,30 +1,45 @@
-# SGA Client Portal V1
+# SGA Client Portal V2
 
-Zip-ready Vite + React + Tailwind project for the CCA Vackar pilot portal.
+This is a Vite + React + TypeScript project for the CCA Vackar client portal pilot.
 
-## Local setup
+## Run locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Build
+## Build for production
 
 ```bash
 npm run build
 ```
 
-## Deploy to Vercel
+## Deploy
 
-1. Upload this project to a new GitHub repo.
-2. Import the repo into Vercel.
-3. Accept the default Vite build settings.
-4. Deploy.
+Push the project to a GitHub repo and import that repo into Vercel.
 
-## Important edits before sharing with client
+## Google Sheet feed
 
-- Replace placeholder imagery in `src/App.tsx`
-- Tighten/update project text
-- Adjust progress percentage and milestone wording
-- Replace any mock content with live project-approved language
+The project already points to the published CSV feed provided for the portal.
+If the sheet feed fails or the schema does not match, the app will fall back to embedded content.
+
+Expected sheet columns:
+
+- type
+- key
+- value
+- title
+- status
+- date
+- note
+- body
+- subtitle
+- image
+
+Recognized `type` values:
+
+- setting
+- milestone
+- update
+- gallery
