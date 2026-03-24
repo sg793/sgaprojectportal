@@ -11,10 +11,10 @@ import {
   CircleDot,
   LockKeyhole,
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { Separator } from '@/components/ui/separator'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './components/ui/card'
+import { Badge } from './components/ui/badge'
+import { Progress } from './components/ui/progress'
+import { Separator } from './components/ui/separator'
 
 const SHEET_CSV_URL =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vReFJxB81B_Vt6Aw2_1rlKfQJWDd65r94-XRczm5dqwNxxTQ2t8rutzDBSLRvDcohOy0uT-FuAE219z/pub?gid=0&single=true&output=csv'
