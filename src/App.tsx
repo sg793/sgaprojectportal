@@ -27,6 +27,8 @@ const statusTone: Record<string, string> = {
   notSubmitted: 'bg-neutral-100 text-neutral-900 border border-neutral-200',
 };
 
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vReFJxB81B_Vt6Aw2_1rlKfQJWDd65r94-XRczm5dqwNxxTQ2t8rutzDBSLRvDcohOy0uT-FuAE219z/pub?gid=0&single=true&output=csv";
+
 const projectData = {
   portalTitle: 'SGA Client Portal',
   intro: 'This portal serves as a direct window into the progress of your project.',
