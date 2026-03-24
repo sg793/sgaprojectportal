@@ -29,7 +29,7 @@ const statusTone: Record<string, string> = {
 
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vReFJxB81B_Vt6Aw2_1rlKfQJWDd65r94-XRczm5dqwNxxTQ2t8rutzDBSLRvDcohOy0uT-FuAE219z/pub?gid=0&single=true&output=csv";
 
-const projectData = {
+const fallbackProjectData = {
   portalTitle: 'SGA Client Portal',
   intro: 'This portal serves as a direct window into the progress of your project.',
   privacyNote: 'Private project link. Curated for client-facing visibility.',
