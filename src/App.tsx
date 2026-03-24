@@ -1,139 +1,260 @@
-import React, { useMemo } from 'react';
-import { motion } from 'framer-motion';
-import {
-  Building2,
-  Flag,
-  Clock3,
-  CheckCircle2,
-  Image as ImageIcon,
-  ShieldCheck,
-  ChevronRight,
-  CircleDot,
-  LockKeyhole,
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
+import React, { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { Building2, Flag, Clock3, CheckCircle2, Image as ImageIcon, ShieldCheck, ChevronRight, CircleDot, LockKeyhole } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 
-const statusTone: Record<string, string> = {
-  completed: 'bg-black text-white',
-  current: 'bg-neutral-800 text-white',
-  upcoming: 'bg-neutral-100 text-neutral-800 border border-neutral-200',
-  approved: 'bg-black text-white',
-  review: 'bg-neutral-900 text-white',
-  coordination: 'bg-neutral-100 text-neutral-900 border border-neutral-200',
-  pending: 'bg-neutral-100 text-neutral-900 border border-neutral-200',
-  notSubmitted: 'bg-neutral-100 text-neutral-900 border border-neutral-200',
+/**
+ * SGA Client Portal V1
+ *
+ * Notes for Sam / team:
+ * - This is a single-project pilot for CCA Vackar High School.
+ * - Data is intentionally curated. Do not expose raw operational detail.
+ * - Swap `projectData` values or wire them to a sheet/json feed later.
+ * - Private-link strategy should be handled at the hosting/router level.
+ */
+
+const statusTone = {
+  completed: "bg-black text-white",
+  current: "bg-neutral-800 text-white",
+  upcoming: "bg-neutral-100 text-neutral-800 border border-neutral-200",
+  approved: "bg-black text-white",
+  review: "bg-neutral-900 text-white",
+  coordination: "bg-neutral-100 text-neutral-900 border border-neutral-200",
+  pending: "bg-neutral-100 text-neutral-900 border border-neutral-200",
+  notSubmitted: "bg-neutral-100 text-neutral-900 border border-neutral-200",
 };
 
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vReFJxB81B_Vt6Aw2_1rlKfQJWDd65r94-XRczm5dqwNxxTQ2t8rutzDBSLRvDcohOy0uT-FuAE219z/pub?gid=0&single=true&output=csv";
 
 const fallbackProjectData = {
-  portalTitle: 'SGA Client Portal',
-  intro: 'This portal serves as a direct window into the progress of your project.',
-  privacyNote: 'Private project link. Curated for client-facing visibility.',
+  portalTitle: "SGA Client Portal",
+  intro: "This portal serves as a direct window into the progress of your project.",
+  privacyNote: "Private project link. Curated for client-facing visibility.",
   project: {
-    name: 'CCA Vackar High School',
-    client: 'CCTA / CCA Vackar Initiative',
-    location: 'McAllen, Texas',
-    type: 'Private Educational Campus',
+    name: "CCA Vackar High School",
+    client: "CCTA / CCA Vackar Initiative",
+    location: "McAllen, Texas",
+    type: "Private Educational Campus",
     summary:
-      'This portal provides a clear, curated view of major project progress, milestones, and next steps for the CCA Vackar High School initiative.',
-    phase: 'Programming / Early Design Coordination',
+      "This portal provides a clear, curated view of major project progress, milestones, and next steps for the CCA Vackar High School initiative.",
+    phase: "Programming / Early Design Coordination",
     progress: 24,
-    progressLabel: 'Early design alignment underway',
+    progressLabel: "Early design alignment underway",
     permitStatus: {
-      label: 'Pending owner-directed advancement',
-      tone: 'pending',
+      label: "Pending owner-directed advancement",
+      tone: "pending",
       detail:
-        'Formal permitting has not commenced. Current activity remains focused on program validation, scope alignment, and institutional coordination.',
+        "Formal permitting has not commenced. Current activity remains focused on program validation, scope alignment, and institutional coordination.",
     },
     jurisdictionStatus: {
-      label: 'In coordination',
-      tone: 'coordination',
+      label: "In coordination",
+      tone: "coordination",
       detail:
-        'Coordination with South Texas College remains an important input item for instructional space requirements and overall planning alignment.',
+        "Coordination with South Texas College remains an important input item for instructional space requirements and overall planning alignment.",
     },
     nextSteps: [
-      'Finalize updated space program for client review and confirmation.',
-      'Incorporate current direction regarding combined Buildings A and B and the revised classroom count.',
-      'Continue coordination related to instructional-space requirements and planning assumptions.',
+      "Finalize updated space program for client review and confirmation.",
+      "Incorporate current direction regarding combined Buildings A and B and the revised classroom count.",
+      "Continue coordination related to instructional-space requirements and planning assumptions.",
     ],
   },
   milestones: [
     {
-      title: 'Initial project direction established',
-      status: 'completed',
-      date: 'Completed',
-      note: 'Overall project direction and phase framework established.',
+      title: "Initial project direction established",
+      status: "completed",
+      date: "Completed",
+      note: "Overall project direction and phase framework established.",
     },
     {
-      title: 'Program revision in progress',
-      status: 'current',
-      date: 'Current',
-      note: 'Program is being refined to reflect combined Buildings A and B and the revised classroom count.',
+      title: "Program revision in progress",
+      status: "current",
+      date: "Current",
+      note: "Program is being refined to reflect combined Buildings A and B and the revised classroom count.",
     },
     {
-      title: 'Updated program confirmation',
-      status: 'upcoming',
-      date: 'Pending',
-      note: 'Updated program document to be reviewed and confirmed as the formal basis for continued advancement.',
+      title: "Updated program confirmation",
+      status: "upcoming",
+      date: "Pending",
+      note: "Updated program document to be reviewed and confirmed as the formal basis for continued advancement.",
     },
     {
-      title: 'Institutional coordination input',
-      status: 'upcoming',
-      date: 'Pending',
-      note: 'South Texas College coordination to inform classroom and instructional-space assumptions.',
+      title: "Institutional coordination input",
+      status: "upcoming",
+      date: "Pending",
+      note: "South Texas College coordination to inform classroom and instructional-space assumptions.",
     },
   ],
   updates: [
     {
-      date: 'March 2026',
-      title: 'Project scope direction refined',
+      date: "March 2026",
+      title: "Project scope direction refined",
       body:
-        'Current direction reflects the consolidation of Buildings A and B into a single building strategy, with Building C remaining part of the overall project scope.',
+        "Current direction reflects the consolidation of Buildings A and B into a single building strategy, with Building C remaining part of the overall project scope.",
     },
     {
-      date: 'March 2026',
-      title: 'Programming revision underway',
+      date: "March 2026",
+      title: "Programming revision underway",
       body:
-        'The updated programming document is being prepared to confirm key space allocations and provide a formal basis for continued design advancement.',
+        "The updated programming document is being prepared to confirm key space allocations and provide a formal basis for continued design advancement.",
     },
     {
-      date: 'March 2026',
-      title: 'Institutional coordination remains active',
+      date: "March 2026",
+      title: "Institutional coordination remains active",
       body:
-        'Input related to instructional space requirements remains an active coordination item and will help guide continued project alignment.',
+        "Input related to instructional space requirements remains an active coordination item and will help guide continued project alignment.",
     },
   ],
   gallery: [
     {
-      title: 'Concept Rendering',
-      subtitle: 'Reserved for curated presentation image',
-      image: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1600&q=80',
+      title: "Concept Rendering",
+      subtitle: "Reserved for curated presentation image",
+      image:
+        "https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1600&q=80",
     },
     {
-      title: 'Campus Character',
-      subtitle: 'Reserved for additional rendering or site image',
-      image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1600&q=80',
+      title: "Campus Character",
+      subtitle: "Reserved for additional rendering or site image",
+      image:
+        "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1600&q=80",
     },
   ],
 };
 
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  subvalue,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: string;
-  subvalue?: string;
-}) {
+function parseCsvLine(line) {
+  const result = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+    const nextChar = line[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        current += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === "," && !inQuotes) {
+      result.push(current.trim());
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+
+  result.push(current.trim());
+  return result;
+}
+
+function parseCsv(text) {
+  const lines = text
+    .split(/
+?
+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (!lines.length) return [];
+
+  const headers = parseCsvLine(lines[0]);
+  return lines.slice(1).map((line) => {
+    const values = parseCsvLine(line);
+    return headers.reduce((acc, header, index) => {
+      acc[header] = values[index] ?? "";
+      return acc;
+    }, {});
+  });
+}
+
+function splitPipe(value) {
+  return (value || "")
+    .split("|")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function rowsToProjectData(rows) {
+  const settings = {};
+  const milestones = [];
+  const updates = [];
+  const gallery = [];
+
+  rows.forEach((row) => {
+    const type = (row.type || "").trim().toLowerCase();
+
+    if (type === "setting") {
+      settings[row.key] = row.value || "";
+    }
+
+    if (type === "milestone") {
+      milestones.push({
+        title: row.title || "",
+        status: (row.status || "upcoming").toLowerCase(),
+        date: row.date || "Pending",
+        note: row.note || "",
+      });
+    }
+
+    if (type === "update") {
+      updates.push({
+        date: row.date || "",
+        title: row.title || "",
+        body: row.body || "",
+      });
+    }
+
+    if (type === "gallery") {
+      gallery.push({
+        title: row.title || "",
+        subtitle: row.subtitle || "",
+        image: row.image || "",
+      });
+    }
+  });
+
+  return {
+    portalTitle: settings.portalTitle || fallbackProjectData.portalTitle,
+    intro: settings.intro || fallbackProjectData.intro,
+    privacyNote: settings.privacyNote || fallbackProjectData.privacyNote,
+    project: {
+      name: settings.projectName || fallbackProjectData.project.name,
+      client: settings.client || fallbackProjectData.project.client,
+      location: settings.location || fallbackProjectData.project.location,
+      type: settings.projectType || fallbackProjectData.project.type,
+      summary: settings.summary || fallbackProjectData.project.summary,
+      phase: settings.phase || fallbackProjectData.project.phase,
+      progress: Number(settings.progress || fallbackProjectData.project.progress),
+      progressLabel: settings.progressLabel || fallbackProjectData.project.progressLabel,
+      permitStatus: {
+        label: settings.permitStatusLabel || fallbackProjectData.project.permitStatus.label,
+        tone: settings.permitStatusTone || fallbackProjectData.project.permitStatus.tone,
+        detail: settings.permitStatusDetail || fallbackProjectData.project.permitStatus.detail,
+      },
+      jurisdictionStatus: {
+        label: settings.jurisdictionStatusLabel || fallbackProjectData.project.jurisdictionStatus.label,
+        tone: settings.jurisdictionStatusTone || fallbackProjectData.project.jurisdictionStatus.tone,
+        detail: settings.jurisdictionStatusDetail || fallbackProjectData.project.jurisdictionStatus.detail,
+      },
+      nextSteps: splitPipe(settings.nextSteps).length
+        ? splitPipe(settings.nextSteps)
+        : fallbackProjectData.project.nextSteps,
+    },
+    milestones: milestones.length ? milestones : fallbackProjectData.milestones,
+    updates: updates.length ? updates : fallbackProjectData.updates,
+    gallery: gallery.length ? gallery : fallbackProjectData.gallery,
+  };
+}
+
+const projectData = fallbackProjectData;
+
+function StatCard({ icon: Icon, label, value, subvalue }) {
   return (
-    <Card className="rounded-2xl border border-neutral-200 shadow-sm">
+    <Card className="rounded-2xl border-neutral-200 shadow-sm">
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -150,7 +271,7 @@ function StatCard({
   );
 }
 
-function StatusPill({ children, tone = 'pending' }: { children: React.ReactNode; tone?: string }) {
+function StatusPill({ children, tone = "pending" }) {
   return (
     <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${statusTone[tone]}`}>
       {children}
@@ -158,9 +279,41 @@ function StatusPill({ children, tone = 'pending' }: { children: React.ReactNode;
   );
 }
 
-export default function App() {
+export default function SGAClientPortalV1() {
+  const [projectData, setProjectData] = useState(fallbackProjectData);
+  const [feedStatus, setFeedStatus] = useState("fallback");
+
+  useEffect(() => {
+    if (!SHEET_CSV_URL || SHEET_CSV_URL.includes("PASTE_YOUR_PUBLISHED_GOOGLE_SHEET_CSV_URL_HERE")) {
+      return;
+    }
+
+    let isMounted = true;
+
+    async function loadFeed() {
+      try {
+        const response = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+        if (!response.ok) throw new Error(`Feed request failed: ${response.status}`);
+        const text = await response.text();
+        const rows = parseCsv(text);
+        const mapped = rowsToProjectData(rows);
+        if (isMounted) {
+          setProjectData(mapped);
+          setFeedStatus("live");
+        }
+      } catch (error) {
+        console.error("Portal feed load failed", error);
+        if (isMounted) setFeedStatus("fallback");
+      }
+    }
+
+    loadFeed();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   const completedMilestones = useMemo(
-    () => projectData.milestones.filter((m) => m.status === 'completed').length,
+    () => projectData.milestones.filter((m) => m.status === "completed").length,
     []
   );
 
@@ -187,6 +340,10 @@ export default function App() {
                     <LockKeyhole className="h-3.5 w-3.5" />
                     {projectData.privacyNote}
                   </div>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs text-neutral-600">
+                    <span className={`h-2 w-2 rounded-full ${feedStatus === "live" ? "bg-emerald-500" : "bg-amber-500"}`} />
+                    {feedStatus === "live" ? "Live sheet feed" : "Fallback content"}
+                  </div>
                 </div>
                 <h1 className="text-3xl font-semibold tracking-tight text-neutral-950 sm:text-4xl">
                   {projectData.project.name}
@@ -200,10 +357,12 @@ export default function App() {
               </div>
 
               <div className="w-full max-w-md rounded-[24px] border border-neutral-200 bg-neutral-50 p-5">
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs uppercase tracking-[0.18em] text-neutral-500">Overall Progress</p>
-                    <div className="mt-2 text-3xl font-semibold text-neutral-950">{projectData.project.progress}%</div>
+                    <div className="mt-2 text-3xl font-semibold text-neutral-950">
+                      {projectData.project.progress}%
+                    </div>
                   </div>
                   <div className="rounded-2xl border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-700">
                     {projectData.project.phase}
@@ -246,8 +405,8 @@ export default function App() {
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-12">
-          <div className="space-y-6 xl:col-span-8">
-            <Card className="rounded-[28px] border border-neutral-200 shadow-sm">
+          <div className="xl:col-span-8 space-y-6">
+            <Card className="rounded-[28px] border-neutral-200 shadow-sm">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl">Project Milestones</CardTitle>
                 <CardDescription>Completed, current, and upcoming checkpoints.</CardDescription>
@@ -258,9 +417,9 @@ export default function App() {
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div className="flex gap-3">
                         <div className="mt-0.5 rounded-full border border-neutral-200 bg-neutral-50 p-2">
-                          {item.status === 'completed' ? (
+                          {item.status === "completed" ? (
                             <CheckCircle2 className="h-4 w-4 text-neutral-800" />
-                          ) : item.status === 'current' ? (
+                          ) : item.status === "current" ? (
                             <CircleDot className="h-4 w-4 text-neutral-800" />
                           ) : (
                             <ChevronRight className="h-4 w-4 text-neutral-500" />
@@ -281,7 +440,7 @@ export default function App() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-[28px] border border-neutral-200 shadow-sm">
+            <Card className="rounded-[28px] border-neutral-200 shadow-sm">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl">Major Updates</CardTitle>
                 <CardDescription>Formal project updates intended for client-facing visibility.</CardDescription>
@@ -294,7 +453,7 @@ export default function App() {
                         <h3 className="text-base font-semibold text-neutral-950">{update.title}</h3>
                         <p className="mt-2 text-sm leading-6 text-neutral-600">{update.body}</p>
                       </div>
-                      <div className="whitespace-nowrap text-sm text-neutral-500">{update.date}</div>
+                      <div className="text-sm whitespace-nowrap text-neutral-500">{update.date}</div>
                     </div>
                   </div>
                 ))}
@@ -302,8 +461,8 @@ export default function App() {
             </Card>
           </div>
 
-          <div className="space-y-6 xl:col-span-4">
-            <Card className="rounded-[28px] border border-neutral-200 shadow-sm">
+          <div className="xl:col-span-4 space-y-6">
+            <Card className="rounded-[28px] border-neutral-200 shadow-sm">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl">Next Steps</CardTitle>
                 <CardDescription>Immediate items currently shaping forward progress.</CardDescription>
@@ -322,7 +481,7 @@ export default function App() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-[28px] border border-neutral-200 shadow-sm">
+            <Card className="rounded-[28px] border-neutral-200 shadow-sm">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl">Jurisdiction & Permit Status</CardTitle>
                 <CardDescription>High-level public-process visibility.</CardDescription>
@@ -348,7 +507,7 @@ export default function App() {
           </div>
         </div>
 
-        <Card className="mt-6 rounded-[28px] border border-neutral-200 shadow-sm">
+        <Card className="mt-6 rounded-[28px] border-neutral-200 shadow-sm">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-3">
               <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-2.5">
