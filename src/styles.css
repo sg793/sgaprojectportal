@@ -1,0 +1,67 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #111827;
+  background: #f5f5f5;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #f5f5f5; color: #171717; }
+img { display: block; max-width: 100%; }
+.page { min-height: 100vh; }
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.card { background: #fff; border: 1px solid #e5e5e5; border-radius: 28px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+.hero { display: grid; grid-template-columns: 1.7fr 1fr; gap: 28px; padding: 32px; align-items: end; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.badge, .pill { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; border-radius: 999px; padding: 8px 12px; border: 1px solid #d4d4d4; background: #fafafa; color: #525252; }
+.dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; }
+.dot-live { background: #10b981; }
+.dot-fallback { background: #f59e0b; }
+.hero h1 { margin: 0 0 12px; font-size: 44px; line-height: 1.05; }
+.intro { margin: 0 0 10px; font-size: 20px; color: #525252; }
+.summary { margin: 0; color: #666; line-height: 1.65; max-width: 900px; }
+.progress-card { background: #fafafa; border: 1px solid #e5e5e5; border-radius: 24px; padding: 24px; }
+.kicker { text-transform: uppercase; letter-spacing: .16em; font-size: 12px; color: #737373; margin-bottom: 10px; }
+.progress-number { font-size: 46px; font-weight: 700; margin-bottom: 10px; }
+.phase-chip { display: inline-block; background: #fff; border: 1px solid #d4d4d4; padding: 10px 14px; border-radius: 16px; font-size: 14px; margin-bottom: 14px; }
+.progress-bar { height: 10px; width: 100%; background: #e5e5e5; border-radius: 999px; overflow: hidden; }
+.progress-fill { height: 100%; background: #171717; border-radius: 999px; }
+.progress-label { margin-top: 12px; color: #525252; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 24px; }
+.stat { padding: 20px; }
+.stat-value { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+.stat-sub { color: #666; font-size: 14px; line-height: 1.5; }
+.content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-top: 24px; }
+.left-column, .right-column { display: flex; flex-direction: column; gap: 24px; }
+.section-card { padding: 24px; }
+h2 { margin: 0 0 4px; font-size: 28px; }
+.section-sub { margin: 0 0 18px; color: #666; }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.item-card { border: 1px solid #e5e5e5; border-radius: 20px; padding: 18px; }
+.item-head { display: flex; justify-content: space-between; gap: 16px; }
+.item-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+h3 { margin: 0; font-size: 18px; }
+.item-card p, .step-card p, .gallery-body p, .footer p { margin: 10px 0 0; color: #666; line-height: 1.65; }
+.item-date { color: #737373; white-space: nowrap; font-size: 14px; }
+.pill-dark { background: #171717; border-color: #171717; color: white; }
+.pill-current { background: #404040; border-color: #404040; color: white; }
+.pill-light { background: #fafafa; color: #333; }
+.step-card { display: flex; gap: 12px; border: 1px solid #e5e5e5; border-radius: 20px; padding: 16px; background: #fafafa; }
+.step-num { min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #d4d4d4; border-radius: 999px; font-size: 12px; background: #fff; color: #666; font-weight: 700; }
+.gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.gallery-card { overflow: hidden; border: 1px solid #e5e5e5; border-radius: 24px; background: #fafafa; }
+.gallery-image-wrap { aspect-ratio: 16 / 10; overflow: hidden; background: #e5e5e5; }
+.gallery-image { width: 100%; height: 100%; object-fit: cover; }
+.gallery-body { padding: 16px; }
+.footer { margin-top: 24px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.footer-title { font-weight: 700; margin-bottom: 6px; }
+.footer-brand { text-transform: uppercase; letter-spacing: .16em; font-size: 12px; color: #666; white-space: nowrap; }
+@media (max-width: 980px) {
+  .hero, .content-grid, .stats-grid, .gallery-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .container { padding: 16px; }
+  .hero { padding: 22px; }
+  .section-card, .stat, .footer { padding: 18px; }
+  .hero h1 { font-size: 34px; }
+  .intro { font-size: 18px; }
+  .item-head, .footer { flex-direction: column; align-items: flex-start; }
+}

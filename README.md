@@ -1,45 +1,14 @@
-# SGA Client Portal V2
+# SGA Client Portal
 
-This is a Vite + React + TypeScript project for the CCA Vackar client portal pilot.
-
-## Run locally
+## Local run
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Build for production
-
-```bash
-npm run build
-```
-
 ## Deploy
 
-Push the project to a GitHub repo and import that repo into Vercel.
+Push this project to GitHub and import it into Vercel.
 
-## Google Sheet feed
-
-The project already points to the published CSV feed provided for the portal.
-If the sheet feed fails or the schema does not match, the app will fall back to embedded content.
-
-Expected sheet columns:
-
-- type
-- key
-- value
-- title
-- status
-- date
-- note
-- body
-- subtitle
-- image
-
-Recognized `type` values:
-
-- setting
-- milestone
-- update
-- gallery
+If Vercel keeps restoring a bad install cache from an older failed deployment, create a new Vercel project or redeploy without build cache.
