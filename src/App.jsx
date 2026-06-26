@@ -1,4 +1,3 @@
-
 import React, { useEffect, useMemo, useState } from 'react'
 
 const PORTAL_TITLE = 'SGA Client Portal'
@@ -10,6 +9,8 @@ const FEEDS = {
   projectStatus: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vReFJxB81B_Vt6Aw2_1rlKfQJWDd65r94-XRczm5dqwNxxTQ2t8rutzDBSLRvDcohOy0uT-FuAE219z/pub?gid=475363061&single=true&output=csv',
   ownerActions: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vReFJxB81B_Vt6Aw2_1rlKfQJWDd65r94-XRczm5dqwNxxTQ2t8rutzDBSLRvDcohOy0uT-FuAE219z/pub?gid=1104198492&single=true&output=csv',
   projectProgress: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vReFJxB81B_Vt6Aw2_1rlKfQJWDd65r94-XRczm5dqwNxxTQ2t8rutzDBSLRvDcohOy0uT-FuAE219z/pub?gid=95397376&single=true&output=csv',
+  projectFinancial: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vReFJxB81B_Vt6Aw2_1rlKfQJWDd65r94-XRczm5dqwNxxTQ2t8rutzDBSLRvDcohOy0uT-FuAE219z/pub?gid=1750176275&single=true&output=csv',
+  projectBudget: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vReFJxB81B_Vt6Aw2_1rlKfQJWDd65r94-XRczm5dqwNxxTQ2t8rutzDBSLRvDcohOy0uT-FuAE219z/pub?gid=76880490&single=true&output=csv',
 }
 
 const PHASE_SEGMENTS = [
@@ -32,6 +33,17 @@ const fallbackData = {
     progress: '5',
     progresslabel: 'Early stage of schematic design; project progressing as expected.',
     owneractionrequired: 'yes',
+  },
+  projectBudget: {
+    originalbudget: '',
+    revisedbudget: '',
+    currentopc: '',
+    variance: '',
+    variancepercent: '',
+    lastestimatedate: '',
+    estimatephase: '',
+    budgetstatus: '',
+    notes: '',
   },
   ownerActions: [
     {
@@ -79,6 +91,7 @@ const fallbackData = {
       note: 'Progress schematic design work immediately after program confirmation.',
     },
   ],
+  projectFinancial: [],
 }
 
 function normalizeKey(value) {
@@ -165,6 +178,45 @@ function rowsToItems(rows) {
     .sort((a, b) => a.order - b.order)
 }
 
+function rowsToInvoices(rows) {
+  return rows
+    .map((row) => ({
+      invoiceNumber: row.invoicenumber || '',
+      invoiceDate: row.invoicedate || '',
+      description: row.description || '',
+      invoiceAmount: row.invoiceamount || '',
+      amountReceived: row.amountreceived || '',
+      balance: row.balance || '',
+      dateReceived: row.datereceived || '',
+      status: String(row.status || '').trim().toLowerCase(),
+      note: row.note || '',
+    }))
+    .filter((row) => row.invoiceNumber || row.description || row.invoiceAmount)
+}
+
+function parseMoney(value) {
+  const cleaned = String(value || '').replace(/[^0-9.-]+/g, '')
+  const number = Number(cleaned)
+  return Number.isFinite(number) ? number : 0
+}
+
+function formatMoney(value) {
+  if (value === undefined || value === null || String(value).trim() === '') return '—'
+  const number = parseMoney(value)
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(number)
+}
+
+function formatPercent(value) {
+  if (value === undefined || value === null || String(value).trim() === '') return '—'
+  const number = Number(String(value).replace('%', '').trim())
+  if (!Number.isFinite(number)) return String(value)
+  return `${number}%`
+}
+
 function clamp(number, min, max) {
   return Math.min(max, Math.max(min, number))
 }
@@ -229,6 +281,113 @@ function ProgressSection({ title, subtitle, items, tone }) {
   )
 }
 
+function MetricCard({ label, value, note }) {
+  return (
+    <article className="metric-card">
+      <div className="metric-label">{label}</div>
+      <div className="metric-value">{value || '—'}</div>
+      {note ? <div className="metric-note">{note}</div> : null}
+    </article>
+  )
+}
+
+function FinancialSection({ invoices }) {
+  const totals = useMemo(() => {
+    return invoices.reduce(
+      (acc, invoice) => {
+        acc.invoiced += parseMoney(invoice.invoiceAmount)
+        acc.received += parseMoney(invoice.amountReceived)
+        acc.balance += invoice.balance ? parseMoney(invoice.balance) : parseMoney(invoice.invoiceAmount) - parseMoney(invoice.amountReceived)
+        return acc
+      },
+      { invoiced: 0, received: 0, balance: 0 }
+    )
+  }, [invoices])
+
+  if (!invoices.length) return null
+
+  return (
+    <section className="card main-section">
+      <div className="section-head">
+        <div>
+          <div className="eyebrow">Financial Summary</div>
+          <h2>Invoices, payments, and remaining balance</h2>
+        </div>
+      </div>
+
+      <div className="metric-grid financial-metrics">
+        <MetricCard label="Total Invoiced" value={formatMoney(totals.invoiced)} />
+        <MetricCard label="Total Received" value={formatMoney(totals.received)} />
+        <MetricCard label="Outstanding Balance" value={formatMoney(totals.balance)} />
+      </div>
+
+      <div className="table-wrap">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Invoice</th>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Amount</th>
+              <th>Received</th>
+              <th>Balance</th>
+              <th>Date Received</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {invoices.map((invoice, index) => (
+              <tr key={`${invoice.invoiceNumber}-${index}`}>
+                <td>{invoice.invoiceNumber || '—'}</td>
+                <td>{invoice.invoiceDate || '—'}</td>
+                <td>
+                  <div>{invoice.description || '—'}</div>
+                  {invoice.note ? <div className="table-note">{invoice.note}</div> : null}
+                </td>
+                <td>{formatMoney(invoice.invoiceAmount)}</td>
+                <td>{formatMoney(invoice.amountReceived)}</td>
+                <td>{formatMoney(invoice.balance)}</td>
+                <td>{invoice.dateReceived || '—'}</td>
+                <td>{invoice.status ? <span className={`status-chip status-${invoice.status}`}>{invoice.status}</span> : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
+}
+
+function BudgetSection({ budget }) {
+  const hasBudgetData = Object.values(budget || {}).some((value) => String(value || '').trim())
+  if (!hasBudgetData) return null
+
+  return (
+    <section className="card main-section">
+      <div className="section-head">
+        <div>
+          <div className="eyebrow">Opinion of Probable Cost</div>
+          <h2>Current construction budget position</h2>
+        </div>
+      </div>
+
+      <div className="metric-grid budget-metrics">
+        <MetricCard label="Original Budget" value={formatMoney(budget.originalbudget)} />
+        <MetricCard label="Revised Budget" value={formatMoney(budget.revisedbudget)} />
+        <MetricCard label="Current OPC" value={formatMoney(budget.currentopc)} note={budget.estimatephase || ''} />
+        <MetricCard label="Variance" value={formatMoney(budget.variance)} note={formatPercent(budget.variancepercent)} />
+      </div>
+
+      <div className="budget-detail-row">
+        <DetailPill label="Budget Status" value={budget.budgetstatus} />
+        <DetailPill label="Last Estimate" value={budget.lastestimatedate} />
+      </div>
+
+      {budget.notes ? <p className="section-note">{budget.notes}</p> : null}
+    </section>
+  )
+}
+
 function App() {
   const [data, setData] = useState(fallbackData)
   const [feedStatus, setFeedStatus] = useState('fallback')
@@ -242,6 +401,8 @@ function App() {
         fetchCsvRows(FEEDS.projectStatus),
         fetchCsvRows(FEEDS.ownerActions),
         fetchCsvRows(FEEDS.projectProgress),
+        fetchCsvRows(FEEDS.projectFinancial),
+        fetchCsvRows(FEEDS.projectBudget),
       ])
 
       if (!mounted) return
@@ -251,6 +412,8 @@ function App() {
         projectStatus: fallbackData.projectStatus,
         ownerActions: fallbackData.ownerActions,
         projectProgress: fallbackData.projectProgress,
+        projectFinancial: fallbackData.projectFinancial,
+        projectBudget: fallbackData.projectBudget,
       }
 
       let fulfilled = 0
@@ -275,8 +438,18 @@ function App() {
         fulfilled += 1
       }
 
+      if (results[4].status === 'fulfilled') {
+        nextData.projectFinancial = rowsToInvoices(results[4].value)
+        fulfilled += 1
+      }
+
+      if (results[5].status === 'fulfilled' && results[5].value.length) {
+        nextData.projectBudget = { ...fallbackData.projectBudget, ...rowsToFieldMap(results[5].value) }
+        fulfilled += 1
+      }
+
       setData(nextData)
-      setFeedStatus(fulfilled === 4 ? 'live' : fulfilled > 0 ? 'partial' : 'fallback')
+      setFeedStatus(fulfilled === 6 ? 'live' : fulfilled > 0 ? 'partial' : 'fallback')
     }
 
     loadFeeds().catch((error) => {
@@ -417,6 +590,9 @@ function App() {
             />
           </div>
         </section>
+
+        <FinancialSection invoices={data.projectFinancial} />
+        <BudgetSection budget={data.projectBudget} />
 
         <footer className="portal-footer">
           <div>

@@ -1,11 +1,13 @@
 # SGA Client Portal (multi-tab Google Sheet feed)
 
-This project is a lightweight Vite + React client portal wired to four published Google Sheet CSV feeds:
+This project is a lightweight Vite + React client portal wired to six published Google Sheet CSV feeds:
 
 - `project_info`
 - `project_status`
 - `owner_actions`
 - `project_progress`
+- `project_financial`
+- `project_budget`
 
 ## Run locally
 
@@ -70,6 +72,38 @@ The portal shows a moving window:
 - up to 3 completed
 - up to 3 active
 - up to 3 upcoming
+
+### `project_financial`
+- `invoiceNumber`
+- `invoiceDate`
+- `description`
+- `invoiceAmount`
+- `amountReceived`
+- `balance`
+- `dateReceived`
+- `status`
+- `note`
+
+Useful statuses:
+- `paid`
+- `partial`
+- `outstanding`
+- `open`
+
+### `project_budget`
+- `field`
+- `value`
+
+Rows used by the app:
+- `originalBudget`
+- `revisedBudget`
+- `currentOPC`
+- `variance`
+- `variancePercent`
+- `lastEstimateDate`
+- `estimatePhase`
+- `budgetStatus`
+- `notes`
 
 ## Notes
 
